@@ -53,7 +53,6 @@ router.post('/login', inputValidation, (req, res, next) => {
            console.log(err);
            res.send('error happened');
        })
-    
 })
 
 // Update (same model but with find one and update method).
