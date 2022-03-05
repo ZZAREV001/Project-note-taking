@@ -1,12 +1,13 @@
 const router = require('express').Router();
 const UserModel = require('./UserModel');
+const bcrypt = require('bcryptjs');
 
 router.post('/register',
   registerInputValidation,
   isEmailRegistered,          // if inputs are valid and email not registered the middle below is executed (create new user)
   hashPassword,
   (req, res, next)=>{
-    console.log(req.body.password)
+    console.log(req.body.password)        // this line encrypts password
     const newUser = new UserModel({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -88,6 +89,22 @@ const isEmailRegistered = (req, res, next) => {
             console.log(err);
             res.status(500).send('Error happened');
         })
+}
+
+// Middleware for encrypt password:
+const hashPassword = (req, res, next) => {
+    const { password } = req.body;
+
+    bcrypt.genSalt(10, (err, salt) => {      // a salt is a random data (cryptography)
+        bcrypt.hash(password, salt, (err, passwordHash) => {     // only the computer can decrypt the hash
+            if (err) {
+                res.status(500).send('err');
+            } else {
+                req.body.password = passwordHash;
+                next();
+            }
+        })
+    })
 }
 
 
